@@ -1,13 +1,15 @@
 from typing import Dict
 
 STORAGE_SERIES_BY_REGION: Dict[str, str] = {
-    # examples only — replace with your actual EIA series codes
     "lower48": "NW2_EPG0_SWO_R48_BCF",
     "east": "NW2_EPG0_SWO_R31_BCF",
     "midwest": "NW2_EPG0_SWO_R32_BCF",
     "south_central": "NW2_EPG0_SWO_R33_BCF",
     "mountain": "NW2_EPG0_SWO_R34_BCF",
     "pacific": "NW2_EPG0_SWO_R35_BCF",
+    # South Central breakdown
+    "south_central_nonsalt": "NW2_EPG0_SNO_R33_BCF",
+    "south_central_salt": "NW2_EPG0_SSO_R33_BCF",
 }
 
 PRODUCTION_SERIES_BY_STATE = {
