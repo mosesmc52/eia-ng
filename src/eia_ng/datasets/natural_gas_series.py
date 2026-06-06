@@ -13,8 +13,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 }
 
 # Base Gas
-
-{
+BASE_GAS_STORAGE_SERIES_BY_GEOGRAPHY = {
     "al": "N5010AL2",
     "ar": "N5010AR2",
     "ca": "N5010CA2",
@@ -58,8 +57,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 
 
 # WORKING GAS
-
-{
+UNDERGROUND_STORAGE_WORKING_GAS_SERIES_BY_GEOGRAPHY = {
     "al": "N5020AL2",
     "ar": "N5020AR2",
     "ca": "N5020CA2",
@@ -102,7 +100,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 }
 
 # Total Gas
-{
+UNDERGROUND_STORAGE_TOTAL_GAS_SERIES_BY_GEOGRAPHY = {
     "al": "N5030AL2",
     "ar": "N5030AR2",
     "ca": "N5030CA2",
@@ -145,7 +143,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 }
 
 # working gas yoy volume
-{
+UNDERGROUND_STORAGE_WORKING_GAS_YOY_VOLUME_SERIES_BY_GEOGRAPHY = {
     "al": "N5040AL2",
     "ar": "N5040AR2",
     "ca": "N5040CA2",
@@ -189,7 +187,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 
 
 # working gas yoy percent
-{
+UNDERGROUND_STORAGE_WORKING_GAS_YOY_PERCENT_SERIES_BY_GEOGRAPHY = {
     "al": "N5040AL4",
     "ar": "N5040AR4",
     "ca": "N5040CA4",
@@ -233,7 +231,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 
 
 # underground injections
-{
+UNDERGROUND_STORAGE_INJECTIONS_SERIES_BY_GEOGRAPHY = {
     "al": "N5050AL2",
     "ar": "N5050AR2",
     "ca": "N5050CA2",
@@ -277,7 +275,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 
 
 # withdrawls
-{
+UNDERGROUND_STORAGE_WITHDRAWALS_SERIES_BY_GEOGRAPHY = {
     "al": "N5060AL2",
     "ar": "N5060AR2",
     "ca": "N5060CA2",
@@ -320,7 +318,7 @@ WEEKLY_WORKING_STORAGE_SERIES_BY_REGION: Dict[str, str] = {
 }
 
 # net withdrawls
-{
+UNDERGROUND_STORAGE_NET_WITHDRAWALS_SERIES_BY_GEOGRAPHY = {
     "al": "N5070AL2",
     "ar": "N5070AR2",
     "ca": "N5070CA2",
