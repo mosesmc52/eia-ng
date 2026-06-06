@@ -335,3 +335,185 @@ def test_exploration_and_reserves_frequency_forced_annual(monkeypatch, ng):
     assert calls["fetch"]["series"] == "RNGR41STX_1"
     assert calls["fetch"]["frequency"] == "annual"
     assert calls["fetch"]["data_fields"] == ["value"]
+
+
+def test_underground_storage_all_operators_defaults(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_all_operators(start="2020-01-01")
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/mnu/data/"
+    assert calls["fetch"]["series"] == "N5020US2"
+    assert calls["fetch"]["frequency"] == "monthly"
+    assert calls["fetch"]["data_fields"] == ["value"]
+    assert calls["fetch"]["offset"] == 0
+    assert calls["fetch"]["length"] == 5000
+
+
+def test_underground_storage_all_operators_annual_yoy_pct_for_state(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_all_operators(
+        start="2019-01-01",
+        end="2024-12-31",
+        geography="tx",
+        metric_type="working_gas_yoy_pct_change",
+        frequency="annual",
+        offset=12,
+        length=345,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/anu/data/"
+    assert calls["fetch"]["series"] == "N5040TX4"
+    assert calls["fetch"]["frequency"] == "annual"
+    assert calls["fetch"]["start"] == "2019-01-01"
+    assert calls["fetch"]["end"] == "2024-12-31"
+    assert calls["fetch"]["offset"] == 12
+    assert calls["fetch"]["length"] == 345
+
+
+@pytest.mark.parametrize(
+    "metric_type,geography,expected_series",
+    [
+        ("base_gas", "us_total", "N5010US2"),
+        ("working_gas", "tx", "N5020TX2"),
+        ("total_gas", "east", "N5030832"),
+        ("working_gas_yoy_volume_change", "pa", "N5040PA2"),
+        ("working_gas_yoy_pct_change", "midwest", "N5040854"),
+        ("injections", "south_central", "N5050842"),
+        ("withdrawals", "mountain", "N5060862"),
+        ("net_withdrawals", "pacific", "N5070912"),
+    ],
+)
+def test_underground_storage_all_operators_series_resolution(
+    monkeypatch, ng, metric_type, geography, expected_series
+):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_all_operators(
+        start="2020-01-01",
+        geography=geography,
+        metric_type=metric_type,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/mnu/data/"
+    assert calls["fetch"]["series"] == expected_series
+    assert calls["fetch"]["frequency"] == "monthly"
+
+
+def test_underground_storage_all_operators_invalid_metric_type_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_all_operators(
+            start="2020-01-01",
+            metric_type="bad_metric",
+        )
+
+    msg = str(e.value)
+    assert "Invalid metric_type='bad_metric'" in msg
+    assert "working_gas" in msg
+    assert "net_withdrawals" in msg
+
+
+def test_underground_storage_all_operators_invalid_frequency_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_all_operators(
+            start="2020-01-01",
+            frequency="weekly",
+        )
+
+    msg = str(e.value)
+    assert "Invalid frequency='weekly'" in msg
+    assert "annual" in msg
+    assert "monthly" in msg
+
+
+def test_underground_storage_all_operators_invalid_geography_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_all_operators(
+            start="2020-01-01",
+            geography="bad_geo",
+            metric_type="working_gas",
+        )
+
+    msg = str(e.value)
+    assert "Invalid geography='bad_geo'" in msg
+    assert "metric_type='working_gas'" in msg
+    assert "us_total" in msg
+    assert "tx" in msg
+
+
+def test_underground_storage_working_gas_wrapper_delegates(monkeypatch, ng):
+    delegated = {}
+
+    def _delegate(**kwargs):
+        delegated.update(kwargs)
+        return [{"value": 1.0}]
+
+    monkeypatch.setattr(
+        ng, "underground_storage_all_operators", _delegate, raising=False
+    )
+
+    out = ng.underground_storage_working_gas(
+        start="2020-01-01",
+        end="2020-12-31",
+        geography="tx",
+        frequency="annual",
+        offset=5,
+        length=50,
+    )
+
+    assert out == [{"value": 1.0}]
+    assert delegated == {
+        "start": "2020-01-01",
+        "end": "2020-12-31",
+        "geography": "tx",
+        "metric_type": "working_gas",
+        "frequency": "annual",
+        "offset": 5,
+        "length": 50,
+    }
+
+
+def test_underground_storage_working_gas_yoy_pct_change_wrapper_delegates(
+    monkeypatch, ng
+):
+    delegated = {}
+
+    def _delegate(**kwargs):
+        delegated.update(kwargs)
+        return [{"value": 2.0}]
+
+    monkeypatch.setattr(
+        ng, "underground_storage_all_operators", _delegate, raising=False
+    )
+
+    out = ng.underground_storage_working_gas_yoy_pct_change(
+        start="2021-01-01",
+        geography="pa",
+    )
+
+    assert out == [{"value": 2.0}]
+    assert delegated == {
+        "start": "2021-01-01",
+        "end": None,
+        "geography": "pa",
+        "metric_type": "working_gas_yoy_pct_change",
+        "frequency": "monthly",
+        "offset": 0,
+        "length": 5000,
+    }

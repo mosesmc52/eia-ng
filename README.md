@@ -40,8 +40,8 @@ production = client.natural_gas.production(start="2020-01")
 print(production[:3])
 
 # Lower 48 natural gas storage (weekly)
-storage = client.natural_gas.storage(start="2022-01-01")
-print(storage[:3])
+weekly_storage = client.natural_gas.weekly_working_storage(start="2022-01-01")
+print(weekly_storage[:3])
 
 # Henry Hub spot prices (daily)
 prices = client.natural_gas.spot_prices(start="2023-01-01")
@@ -56,7 +56,8 @@ The `natural_gas` source provides access to:
 
 - Production (U.S. total and by state)
 - Consumption (U.S. total and by state)
-- Storage (by region)
+- Weekly working gas storage (by region)
+- Underground storage all operators (by geography and metric)
 - Imports (pipeline, LNG, compressed)
 - Exports (pipeline, LNG, truck, compressed)
 - Spot prices (Henry Hub)
@@ -73,14 +74,39 @@ tx_prod = client.natural_gas.production(
 ```
 
 
-#### Storage by region
-
+#### Weekly working storage by region
 
 ```python
-# Lower 48 storage
-storage = client.natural_gas.storage(
+# Lower 48 weekly working gas storage
+weekly_storage = client.natural_gas.weekly_working_storage(
     start="2022-01-01",
     region="lower48",
+)
+```
+
+#### Underground storage all operators
+
+```python
+# Texas monthly working gas in underground storage
+texas_working_gas = client.natural_gas.underground_storage_all_operators(
+    start="2020-01",
+    geography="tx",
+    metric_type="working_gas",
+    frequency="monthly",
+)
+
+# U.S. working gas percent change from year ago
+us_yoy_pct = client.natural_gas.underground_storage_all_operators(
+    start="2020-01",
+    geography="us_total",
+    metric_type="working_gas_yoy_pct_change",
+    frequency="monthly",
+)
+
+# Thin wrapper example
+base_gas = client.natural_gas.underground_storage_base_gas(
+    start="2020-01",
+    geography="pa",
 )
 ```
 
