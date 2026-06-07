@@ -47,7 +47,7 @@ def _install_spies(monkeypatch, elec, *, fetch_return=None, series_return=None):
         offset: int = 0,
         length: int = 5000,
         direction: str = "desc",
-        extra_params: Dict[str, Any] | None = None,  # type: ignore[valid-type]
+        extra_params: Optional[Dict[str, Any]] = None,
     ) -> dict:
         calls["fetch"] = {
             "start": start,
