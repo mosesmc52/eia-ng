@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from ..datasets.natural_gas_series import (
     BASE_GAS_STORAGE_SERIES_BY_GEOGRAPHY,
@@ -26,6 +26,24 @@ from .base import BaseSource
 class NaturalGas(BaseSource):
     def __init__(self, client):
         super().__init__(client, base_endpoint="natural-gas/")
+
+    def storage(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        region: str = "lower48",
+        frequency: str = "weekly",
+        offset: int = 0,
+        length: int = 5000,
+    ) -> Any:
+        return self.weekly_working_storage(
+            start=start,
+            end=end,
+            region=region,
+            frequency=frequency,
+            offset=offset,
+            length=length,
+        )
 
     def weekly_working_storage(
         self,
@@ -61,7 +79,7 @@ class NaturalGas(BaseSource):
     def underground_storage_all_operators(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         metric_type: str = "working_gas",
         frequency: str = "monthly",
@@ -117,7 +135,7 @@ class NaturalGas(BaseSource):
     def underground_storage_base_gas(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -136,7 +154,7 @@ class NaturalGas(BaseSource):
     def underground_storage_working_gas(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -155,7 +173,7 @@ class NaturalGas(BaseSource):
     def underground_storage_total_gas(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -174,7 +192,7 @@ class NaturalGas(BaseSource):
     def underground_storage_working_gas_yoy_volume_change(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -193,7 +211,7 @@ class NaturalGas(BaseSource):
     def underground_storage_working_gas_yoy_pct_change(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -212,7 +230,7 @@ class NaturalGas(BaseSource):
     def underground_storage_injections(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -231,7 +249,7 @@ class NaturalGas(BaseSource):
     def underground_storage_withdrawals(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
@@ -250,7 +268,7 @@ class NaturalGas(BaseSource):
     def underground_storage_net_withdrawals(
         self,
         start: str,
-        end: str | None = None,
+        end: Optional[str] = None,
         geography: str = "us_total",
         frequency: str = "monthly",
         offset: int = 0,
