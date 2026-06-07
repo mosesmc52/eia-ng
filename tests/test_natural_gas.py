@@ -343,7 +343,7 @@ def test_underground_storage_all_operators_defaults(monkeypatch, ng):
     out = ng.underground_storage_all_operators(start="2020-01-01")
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/mnu/data/"
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
     assert calls["fetch"]["series"] == "N5020US2"
     assert calls["fetch"]["frequency"] == "monthly"
     assert calls["fetch"]["data_fields"] == ["value"]
@@ -365,7 +365,7 @@ def test_underground_storage_all_operators_annual_yoy_pct_for_state(monkeypatch,
     )
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/anu/data/"
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
     assert calls["fetch"]["series"] == "N5040TX4"
     assert calls["fetch"]["frequency"] == "annual"
     assert calls["fetch"]["start"] == "2019-01-01"
@@ -399,7 +399,7 @@ def test_underground_storage_all_operators_series_resolution(
     )
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/mnu/data/"
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
     assert calls["fetch"]["series"] == expected_series
     assert calls["fetch"]["frequency"] == "monthly"
 

@@ -86,7 +86,9 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        endpoint = "stor/mnu/data/" if frequency == "monthly" else "stor/anu/data/"
+        # EIA serves both monthly and annual underground storage summaries from
+        # the shared summary endpoint.
+        endpoint = "stor/sum/data/"
 
         series_maps = {
             "base_gas": BASE_GAS_STORAGE_SERIES_BY_GEOGRAPHY,
