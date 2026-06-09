@@ -360,6 +360,27 @@ UNDERGROUND_STORAGE_NET_WITHDRAWALS_SERIES_BY_GEOGRAPHY = {
     "us_total": "N5070US2",
 }
 
+UNDERGROUND_STORAGE_TYPE = {
+    "base_gas": "N5010US2",
+    "working_gas": "N5020US2",
+    "total_gas": "N5030US2",
+    "injections": "N5050US2",
+    "withdrawals": "N5060US2",
+    "net_withdrawals": "N5070US2",
+    "salt_base_gas": "N5400US2",
+    "salt_working_gas": "N5410US2",
+    "salt_total_gas": "N5420US2",
+    "salt_injections": "N5440US2",
+    "salt_withdrawals": "N5450US2",
+    "salt_net_withdrawals": "N5460US2",
+    "nonsalt_base_gas": "N5500US2",
+    "nonsalt_working_gas": "N5510US2",
+    "nonsalt_total_gas": "N5520US2",
+    "nonsalt_injections": "N5540US2",
+    "nonsalt_withdrawals": "N5550US2",
+    "nonsalt_net_withdrawals": "N5560US2",
+}
+
 PRODUCTION_SERIES_BY_STATE = {
     "al": "NA1160_SAL_2",
     "ak": "NA1160_SAK_2",
@@ -395,6 +416,7 @@ PRODUCTION_SERIES_BY_STATE = {
     "wv": "NA1160_SWV_2",
     "united_states_total": "N9070US2",
 }
+
 
 CONSUMPTION_SERIES_BY_STATE = {
     "al": "N9140AL2",

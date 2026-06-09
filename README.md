@@ -110,6 +110,24 @@ base_gas = client.natural_gas.underground_storage_base_gas(
 )
 ```
 
+#### Underground storage by type
+
+```python
+# U.S. monthly working gas by storage type dataset
+storage_type_working_gas = client.natural_gas.underground_storage_type(
+    start="2020-01",
+    storage_type="working_gas",
+    frequency="monthly",
+)
+
+# U.S. annual salt cavern withdrawals
+salt_withdrawals = client.natural_gas.underground_storage_type(
+    start="2015",
+    storage_type="salt_withdrawals",
+    frequency="annual",
+)
+```
+
 
 #### Imports / exports
 
