@@ -517,3 +517,102 @@ def test_underground_storage_working_gas_yoy_pct_change_wrapper_delegates(
         "offset": 0,
         "length": 5000,
     }
+
+
+def test_underground_storage_type_defaults(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_type(start="2020-01-01")
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/type/data/"
+    assert calls["fetch"]["series"] == "N5020US2"
+    assert calls["fetch"]["frequency"] == "monthly"
+    assert calls["fetch"]["data_fields"] == ["value"]
+    assert calls["fetch"]["offset"] == 0
+    assert calls["fetch"]["length"] == 5000
+
+
+def test_underground_storage_type_annual_salt_withdrawals(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_type(
+        start="2019-01-01",
+        end="2024-12-31",
+        storage_type="salt_withdrawals",
+        frequency="annual",
+        offset=7,
+        length=321,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/type/data/"
+    assert calls["fetch"]["series"] == "N5450US2"
+    assert calls["fetch"]["frequency"] == "annual"
+    assert calls["fetch"]["start"] == "2019-01-01"
+    assert calls["fetch"]["end"] == "2024-12-31"
+    assert calls["fetch"]["offset"] == 7
+    assert calls["fetch"]["length"] == 321
+
+
+@pytest.mark.parametrize(
+    "storage_type,expected_series",
+    [
+        ("base_gas", "N5010US2"),
+        ("working_gas", "N5020US2"),
+        ("total_gas", "N5030US2"),
+        ("injections", "N5050US2"),
+        ("withdrawals", "N5060US2"),
+        ("net_withdrawals", "N5070US2"),
+        ("salt_working_gas", "N5410US2"),
+        ("nonsalt_net_withdrawals", "N5560US2"),
+    ],
+)
+def test_underground_storage_type_series_resolution(
+    monkeypatch, ng, storage_type, expected_series
+):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_type(
+        start="2020-01-01",
+        storage_type=storage_type,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/type/data/"
+    assert calls["fetch"]["series"] == expected_series
+    assert calls["fetch"]["frequency"] == "monthly"
+
+
+def test_underground_storage_type_invalid_storage_type_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_type(
+            start="2020-01-01",
+            storage_type="bad_type",
+        )
+
+    msg = str(e.value)
+    assert "Invalid storage_type='bad_type'" in msg
+    assert "working_gas" in msg
+    assert "nonsalt_net_withdrawals" in msg
+
+
+def test_underground_storage_type_invalid_frequency_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_type(
+            start="2020-01-01",
+            frequency="weekly",
+        )
+
+    msg = str(e.value)
+    assert "Invalid frequency='weekly'" in msg
+    assert "annual" in msg
+    assert "monthly" in msg

@@ -14,6 +14,7 @@ from ..datasets.natural_gas_series import (
     UNDERGROUND_STORAGE_INJECTIONS_SERIES_BY_GEOGRAPHY,
     UNDERGROUND_STORAGE_NET_WITHDRAWALS_SERIES_BY_GEOGRAPHY,
     UNDERGROUND_STORAGE_TOTAL_GAS_SERIES_BY_GEOGRAPHY,
+    UNDERGROUND_STORAGE_TYPE,
     UNDERGROUND_STORAGE_WITHDRAWALS_SERIES_BY_GEOGRAPHY,
     UNDERGROUND_STORAGE_WORKING_GAS_SERIES_BY_GEOGRAPHY,
     UNDERGROUND_STORAGE_WORKING_GAS_YOY_PERCENT_SERIES_BY_GEOGRAPHY,
@@ -285,6 +286,42 @@ class NaturalGas(BaseSource):
             offset=offset,
             length=length,
         )
+
+    def underground_storage_type(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        storage_type: str = "working_gas",
+        frequency: str = "monthly",
+        offset: int = 0,
+        length: int = 5000,
+    ) -> Any:
+        endpoint = "stor/type/data/"
+
+        if frequency not in {"monthly", "annual"}:
+            raise ValueError(
+                f"Invalid frequency='{frequency}'. Valid: annual, monthly."
+            )
+
+        try:
+            series = UNDERGROUND_STORAGE_TYPE[storage_type]
+        except KeyError as e:
+            valid = ", ".join(sorted(UNDERGROUND_STORAGE_TYPE.keys()))
+            raise ValueError(
+                f"Invalid storage_type='{storage_type}'. Valid: {valid}."
+            ) from e
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+        return self.get_series(payload)
 
     def spot_prices(
         self,
