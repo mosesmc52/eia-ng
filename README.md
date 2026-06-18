@@ -155,6 +155,31 @@ lower48_storage_count = client.natural_gas.underground_storage_count(
 )
 ```
 
+#### LNG storage
+
+```python
+# U.S. LNG storage additions
+lng_additions = client.natural_gas.lng_storage_additions(
+    start="2020-01",
+    geography="us_total",
+    frequency="monthly",
+)
+
+# Texas LNG storage withdrawals
+tx_lng_withdrawals = client.natural_gas.lng_storage_withdrawls(
+    start="2020-01",
+    geography="tx",
+    frequency="monthly",
+)
+
+# U.S. LNG storage net withdrawals
+lng_net_withdrawals = client.natural_gas.lng_storage_net_withdrawls(
+    start="2020-01",
+    geography="us_total",
+    frequency="monthly",
+)
+```
+
 
 #### Imports / exports
 

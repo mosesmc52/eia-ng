@@ -6,6 +6,9 @@ from ..datasets.natural_gas_series import (
     EXPORT_SERIES_BY_COUNTRY,
     FUTURES_SERIES_BY_CONTRACT,
     IMPORT_SERIES_BY_COUNTRY,
+    LNG_STORAGE_ADDITIONS,
+    LNG_STORAGE_NET_WITHDRAWLS,
+    LNG_STORAGE_WITHDRAWLS,
     NG_EFP_DRY_BY_STATE,
     NG_PROVED_WET_ASSOC_BY_STATE,
     NG_PROVED_WET_NONASSOC_BY_STATE,
@@ -382,6 +385,93 @@ class NaturalGas(BaseSource):
     ):
         endpoint = "sum/snd/data/"
         series = CONSUMPTION_SERIES_BY_STATE[state]
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+        return self.get_series(payload)
+
+    def lng_storage_additions(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        geography: str = "us_total",
+        frequency: str = "monthly",
+        offset: int = 0,
+        length: int = 5000,
+    ):
+        endpoint = "stor/lng/data/"
+
+        try:
+            series = LNG_STORAGE_ADDITIONS[geography]
+        except KeyError as e:
+            valid = ", ".join(sorted(LNG_STORAGE_ADDITIONS.keys()))
+            raise ValueError(f"Invalid geography='{geography}'. Valid: {valid}.") from e
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+        return self.get_series(payload)
+
+    def lng_storage_withdrawls(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        geography: str = "us_total",
+        frequency: str = "monthly",
+        offset: int = 0,
+        length: int = 5000,
+    ):
+        endpoint = "stor/lng/data/"
+
+        try:
+            series = LNG_STORAGE_WITHDRAWLS[geography]
+        except KeyError as e:
+            valid = ", ".join(sorted(LNG_STORAGE_WITHDRAWLS.keys()))
+            raise ValueError(f"Invalid geography='{geography}'. Valid: {valid}.") from e
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+        return self.get_series(payload)
+
+    def lng_storage_net_withdrawls(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        geography: str = "us_total",
+        frequency: str = "monthly",
+        offset: int = 0,
+        length: int = 5000,
+    ):
+        endpoint = "stor/lng/data/"
+
+        try:
+            series = LNG_STORAGE_NET_WITHDRAWLS[geography]
+        except KeyError as e:
+            valid = ", ".join(sorted(LNG_STORAGE_NET_WITHDRAWLS.keys()))
+            raise ValueError(f"Invalid geography='{geography}'. Valid: {valid}.") from e
 
         payload = self._fetch_v2(
             start=start,
