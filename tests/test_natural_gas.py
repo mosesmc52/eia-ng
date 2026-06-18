@@ -616,3 +616,166 @@ def test_underground_storage_type_invalid_frequency_raises_valueerror(
     assert "Invalid frequency='weekly'" in msg
     assert "annual" in msg
     assert "monthly" in msg
+
+
+def test_underground_storage_capacity_defaults(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_capacity(start="2020-01-01")
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["series"] == "N5290US2"
+    assert calls["fetch"]["frequency"] == "monthly"
+    assert calls["fetch"]["data_fields"] == ["value"]
+    assert calls["fetch"]["offset"] == 0
+    assert calls["fetch"]["length"] == 5000
+
+
+@pytest.mark.parametrize(
+    "capacity_type,geography,expected_series",
+    [
+        ("total", "us_total", "N5290US2"),
+        ("total", "lower48", "NGM_EPG0_SAC_R48_MMCF"),
+        ("working_gas", "tx", "NGA_EPG0_SACW0_STX_MMCF"),
+        ("working_gas", "us_total", "NGA_EPG0_SACW0_NUS_MMCF"),
+    ],
+)
+def test_underground_storage_capacity_series_resolution(
+    monkeypatch, ng, capacity_type, geography, expected_series
+):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_capacity(
+        start="2020-01-01",
+        geography=geography,
+        type=capacity_type,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["series"] == expected_series
+    assert calls["fetch"]["frequency"] == "monthly"
+
+
+def test_underground_storage_capacity_invalid_type_raises_valueerror(monkeypatch, ng):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_capacity(
+            start="2020-01-01",
+            type="bad_type",
+        )
+
+    msg = str(e.value)
+    assert "Invalid type='bad_type'" in msg
+    assert "total" in msg
+    assert "working_gas" in msg
+
+
+def test_underground_storage_capacity_invalid_geography_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_capacity(
+            start="2020-01-01",
+            geography="bad_geo",
+            type="working_gas",
+        )
+
+    msg = str(e.value)
+    assert "Invalid geography='bad_geo'" in msg
+    assert "type='working_gas'" in msg
+    assert "us_total" in msg
+    assert "tx" in msg
+
+
+def test_underground_storage_capacity_invalid_frequency_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_capacity(
+            start="2020-01-01",
+            frequency="weekly",
+        )
+
+    msg = str(e.value)
+    assert "Invalid frequency='weekly'" in msg
+    assert "annual" in msg
+    assert "monthly" in msg
+
+
+def test_underground_storage_count_defaults(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_count(start="2020-01-01")
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["series"] == "NA1394_NUS_8"
+    assert calls["fetch"]["frequency"] == "monthly"
+    assert calls["fetch"]["data_fields"] == ["value"]
+    assert calls["fetch"]["offset"] == 0
+    assert calls["fetch"]["length"] == 5000
+
+
+@pytest.mark.parametrize(
+    "geography,expected_series",
+    [
+        ("us_total", "NA1394_NUS_8"),
+        ("lower48", "NGM_EPG0_SAD_R48_COUNT"),
+        ("tx", "NA1394_STX_8"),
+    ],
+)
+def test_underground_storage_count_series_resolution(
+    monkeypatch, ng, geography, expected_series
+):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.underground_storage_count(
+        start="2020-01-01",
+        geography=geography,
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["series"] == expected_series
+    assert calls["fetch"]["frequency"] == "monthly"
+
+
+def test_underground_storage_count_invalid_geography_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_count(
+            start="2020-01-01",
+            geography="bad_geo",
+        )
+
+    msg = str(e.value)
+    assert "Invalid geography='bad_geo'" in msg
+    assert "us_total" in msg
+    assert "tx" in msg
+
+
+def test_underground_storage_count_invalid_frequency_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.underground_storage_count(
+            start="2020-01-01",
+            frequency="weekly",
+        )
+
+    msg = str(e.value)
+    assert "Invalid frequency='weekly'" in msg
+    assert "annual" in msg
+    assert "monthly" in msg
