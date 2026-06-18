@@ -405,7 +405,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ):
-        endpoint = "stor/sum/data/"
+        endpoint = "stor/cap/data/"
         series_maps = {
             "total": UNDERGROUND_STORAGE_CAPACITY,
             "working_gas": UNDERGROUND_STORAGE_WORKING_GAS_CAPACITY,
@@ -451,7 +451,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ):
-        endpoint = "stor/sum/data/"
+        endpoint = "stor/cap/data/"
 
         if frequency not in {"monthly", "annual"}:
             raise ValueError(
@@ -462,9 +462,7 @@ class NaturalGas(BaseSource):
             series = UNDERGROUND_STORAGE_COUNT[geography]
         except KeyError as e:
             valid = ", ".join(sorted(UNDERGROUND_STORAGE_COUNT.keys()))
-            raise ValueError(
-                f"Invalid geography='{geography}'. Valid: {valid}."
-            ) from e
+            raise ValueError(f"Invalid geography='{geography}'. Valid: {valid}.") from e
 
         payload = self._fetch_v2(
             start=start,
