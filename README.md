@@ -128,6 +128,33 @@ salt_withdrawals = client.natural_gas.underground_storage_type(
 )
 ```
 
+#### Underground storage capacity and count
+
+```python
+# U.S. monthly total underground storage capacity
+total_capacity = client.natural_gas.underground_storage_capacity(
+    start="2020-01",
+    geography="us_total",
+    type="total",
+    frequency="monthly",
+)
+
+# Texas annual working gas storage capacity
+tx_working_capacity = client.natural_gas.underground_storage_capacity(
+    start="2015",
+    geography="tx",
+    type="working_gas",
+    frequency="annual",
+)
+
+# Lower 48 monthly storage field count
+lower48_storage_count = client.natural_gas.underground_storage_count(
+    start="2020-01",
+    geography="lower48",
+    frequency="monthly",
+)
+```
+
 
 #### Imports / exports
 
