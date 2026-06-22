@@ -403,11 +403,16 @@ class NaturalGas(BaseSource):
         start: str,
         end: Optional[str] = None,
         geography: str = "us_total",
-        frequency: str = "monthly",
+        frequency: str = "annual",
         offset: int = 0,
         length: int = 5000,
     ):
         endpoint = "stor/lng/data/"
+
+        if frequency != "annual":
+            raise ValueError(
+                f"Invalid frequency='{frequency}'. LNG storage additions only supports annual."
+            )
 
         try:
             series = LNG_STORAGE_ADDITIONS[geography]
@@ -432,11 +437,16 @@ class NaturalGas(BaseSource):
         start: str,
         end: Optional[str] = None,
         geography: str = "us_total",
-        frequency: str = "monthly",
+        frequency: str = "annual",
         offset: int = 0,
         length: int = 5000,
     ):
         endpoint = "stor/lng/data/"
+
+        if frequency != "annual":
+            raise ValueError(
+                f"Invalid frequency='{frequency}'. LNG storage withdrawls only supports annual."
+            )
 
         try:
             series = LNG_STORAGE_WITHDRAWLS[geography]
@@ -461,11 +471,16 @@ class NaturalGas(BaseSource):
         start: str,
         end: Optional[str] = None,
         geography: str = "us_total",
-        frequency: str = "monthly",
+        frequency: str = "annual",
         offset: int = 0,
         length: int = 5000,
     ):
         endpoint = "stor/lng/data/"
+
+        if frequency != "annual":
+            raise ValueError(
+                f"Invalid frequency='{frequency}'. LNG storage net withdrawls only supports annual."
+            )
 
         try:
             series = LNG_STORAGE_NET_WITHDRAWLS[geography]
