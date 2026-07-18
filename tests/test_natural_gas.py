@@ -140,6 +140,144 @@ def test_consumption_default_united_states_total(monkeypatch, ng):
     assert calls["fetch"]["data_fields"] == ["value"]
 
 
+def test_consumption_delivered_to_consumers_default_us_residential(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.consumption_delivered_to_consumers(start="2020")
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "cons/num/data/"
+    assert calls["fetch"]["series"] == "NA1500_NUS_4"
+    assert calls["fetch"]["frequency"] == "annual"
+    assert calls["fetch"]["data_fields"] == ["value"]
+
+
+def test_consumption_delivered_to_consumers_state_and_type(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.consumption_delivered_to_consumers(
+        start="2020",
+        state="tx",
+        type="vehicle",
+    )
+    assert out == expected
+
+    assert calls["fetch"]["endpoint"] == "cons/num/data/"
+    assert calls["fetch"]["series"] == "NA1570_STX_4"
+    assert calls["fetch"]["frequency"] == "annual"
+
+
+def test_consumption_delivered_to_consumers_invalid_frequency_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.consumption_delivered_to_consumers(
+            start="2020",
+            frequency="monthly",
+        )
+
+    msg = str(e.value)
+    assert "Invalid frequency='monthly'" in msg
+    assert "only supports annual" in msg
+
+
+def test_consumption_delivered_to_consumers_invalid_type_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.consumption_delivered_to_consumers(
+            start="2020",
+            type="bad_type",
+        )
+
+    msg = str(e.value)
+    assert "Invalid type='bad_type'" in msg
+    assert "commercial" in msg
+    assert "electric" in msg
+    assert "industrial" in msg
+    assert "residential" in msg
+    assert "vehicle" in msg
+
+
+def test_consumption_delivered_to_consumers_invalid_state_raises_valueerror(
+    monkeypatch, ng
+):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError) as e:
+        ng.consumption_delivered_to_consumers(
+            start="2020",
+            state="bad_state",
+            type="residential",
+        )
+
+    msg = str(e.value)
+    assert "Invalid state='bad_state'" in msg
+    assert "type='residential'" in msg
+    assert "tx" in msg
+    assert "united_states_total" in msg
+
+
+def test_consumption_end_use_selects_type_and_state(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.consumption_end_use(start="2020", type="industrial", state="tx")
+
+    assert out == expected
+    assert calls["fetch"]["endpoint"] == "cons/sum/data/"
+    assert calls["fetch"]["series"] == "N3035TX2"
+    assert calls["fetch"]["frequency"] == "annual"
+
+
+def test_consumption_end_use_invalid_type_raises_valueerror(monkeypatch, ng):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError, match="Invalid type='bad_type'"):
+        ng.consumption_end_use(start="2020", type="bad_type")
+
+
+def test_consumption_heat_content_selects_state(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.consumption_heat_content(start="2020", state="tx")
+
+    assert out == expected
+    assert calls["fetch"]["endpoint"] == "cons/heat/data/"
+    assert calls["fetch"]["series"] == "NGA_EPG0_VGTH_STX_BTUCF"
+
+
+def test_consumption_heat_content_invalid_state_raises_valueerror(monkeypatch, ng):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError, match="Invalid state='bad_state'"):
+        ng.consumption_heat_content(start="2020", state="bad_state")
+
+
+def test_consumption_share_selects_type_and_state(monkeypatch, ng):
+    calls, expected = _install_spies(monkeypatch, ng)
+
+    out = ng.consumption_share_delivered_to_consumers(
+        start="2020", type="commercial", state="tx"
+    )
+
+    assert out == expected
+    assert calls["fetch"]["endpoint"] == "cons/pns/data/"
+    assert calls["fetch"]["series"] == "NA1530_STX_4"
+
+
+def test_consumption_share_invalid_state_raises_valueerror(monkeypatch, ng):
+    _install_spies(monkeypatch, ng)
+
+    with pytest.raises(ValueError, match="Invalid state='bad_state'"):
+        ng.consumption_share_delivered_to_consumers(
+            start="2020", state="bad_state"
+        )
+
+
 def test_imports_default_united_states_pipeline_total(monkeypatch, ng):
 
     calls, expected = _install_spies(monkeypatch, ng)
