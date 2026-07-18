@@ -16,8 +16,7 @@ def ng():
     Instantiate NaturalGas without relying on its __init__ signature.
     We stub the instance methods used by the public API methods.
     """
-    obj = NaturalGas.__new__(NaturalGas)
-    return obj
+    return NaturalGas(client=None)
 
 
 def _install_spies(monkeypatch, ng, *, fetch_return=None, series_return=None):
@@ -53,8 +52,9 @@ def _install_spies(monkeypatch, ng, *, fetch_return=None, series_return=None):
         calls["series_payload"] = payload
         return series_return
 
-    monkeypatch.setattr(ng, "_fetch_v2", _fetch_v2, raising=False)
-    monkeypatch.setattr(ng, "get_series", get_series, raising=False)
+    for source in (ng, ng.storage, ng.consumption):
+        monkeypatch.setattr(source, "_fetch_v2", _fetch_v2, raising=False)
+        monkeypatch.setattr(source, "get_series", get_series, raising=False)
 
     return calls, series_return
 
@@ -63,7 +63,7 @@ def test_storage_default_region_lower48(monkeypatch, ng):
 
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.storage(start="2020-01-01")
+    out = ng.storage.weekly_working(start="2020-01-01")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "stor/wkly/data/"
@@ -79,7 +79,7 @@ def test_storage_invalid_region_raises_valueerror(monkeypatch, ng):
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.storage(start="2020-01-01", region="bad_region")
+        ng.storage.weekly_working(start="2020-01-01", region="bad_region")
 
     msg = str(e.value)
     assert "Invalid region='bad_region'" in msg
@@ -143,7 +143,7 @@ def test_consumption_default_united_states_total(monkeypatch, ng):
 def test_consumption_delivered_to_consumers_default_us_residential(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption_delivered_to_consumers(start="2020")
+    out = ng.consumption.delivered_to_consumers(start="2020")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "cons/num/data/"
@@ -155,7 +155,7 @@ def test_consumption_delivered_to_consumers_default_us_residential(monkeypatch, 
 def test_consumption_delivered_to_consumers_state_and_type(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption_delivered_to_consumers(
+    out = ng.consumption.delivered_to_consumers(
         start="2020",
         state="tx",
         type="vehicle",
@@ -173,7 +173,7 @@ def test_consumption_delivered_to_consumers_invalid_frequency_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.consumption_delivered_to_consumers(
+        ng.consumption.delivered_to_consumers(
             start="2020",
             frequency="monthly",
         )
@@ -189,7 +189,7 @@ def test_consumption_delivered_to_consumers_invalid_type_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.consumption_delivered_to_consumers(
+        ng.consumption.delivered_to_consumers(
             start="2020",
             type="bad_type",
         )
@@ -209,7 +209,7 @@ def test_consumption_delivered_to_consumers_invalid_state_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.consumption_delivered_to_consumers(
+        ng.consumption.delivered_to_consumers(
             start="2020",
             state="bad_state",
             type="residential",
@@ -225,7 +225,9 @@ def test_consumption_delivered_to_consumers_invalid_state_raises_valueerror(
 def test_consumption_end_use_selects_type_and_state(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption_end_use(start="2020", type="industrial", state="tx")
+    out = ng.consumption.end_use(
+        start="2020", type="industrial", state="tx"
+    )
 
     assert out == expected
     assert calls["fetch"]["endpoint"] == "cons/sum/data/"
@@ -237,13 +239,13 @@ def test_consumption_end_use_invalid_type_raises_valueerror(monkeypatch, ng):
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError, match="Invalid type='bad_type'"):
-        ng.consumption_end_use(start="2020", type="bad_type")
+        ng.consumption.end_use(start="2020", type="bad_type")
 
 
 def test_consumption_heat_content_selects_state(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption_heat_content(start="2020", state="tx")
+    out = ng.consumption.heat_content(start="2020", state="tx")
 
     assert out == expected
     assert calls["fetch"]["endpoint"] == "cons/heat/data/"
@@ -254,13 +256,13 @@ def test_consumption_heat_content_invalid_state_raises_valueerror(monkeypatch, n
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError, match="Invalid state='bad_state'"):
-        ng.consumption_heat_content(start="2020", state="bad_state")
+        ng.consumption.heat_content(start="2020", state="bad_state")
 
 
 def test_consumption_share_selects_type_and_state(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption_share_delivered_to_consumers(
+    out = ng.consumption.share_delivered_to_consumers(
         start="2020", type="commercial", state="tx"
     )
 
@@ -273,7 +275,7 @@ def test_consumption_share_invalid_state_raises_valueerror(monkeypatch, ng):
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError, match="Invalid state='bad_state'"):
-        ng.consumption_share_delivered_to_consumers(
+        ng.consumption.share_delivered_to_consumers(
             start="2020", state="bad_state"
         )
 
@@ -478,7 +480,7 @@ def test_exploration_and_reserves_frequency_forced_annual(monkeypatch, ng):
 def test_underground_storage_all_operators_defaults(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_all_operators(start="2020-01-01")
+    out = ng.storage.underground_all_operators(start="2020-01-01")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "stor/sum/data/"
@@ -492,7 +494,7 @@ def test_underground_storage_all_operators_defaults(monkeypatch, ng):
 def test_underground_storage_all_operators_annual_yoy_pct_for_state(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_all_operators(
+    out = ng.storage.underground_all_operators(
         start="2019-01-01",
         end="2024-12-31",
         geography="tx",
@@ -530,7 +532,7 @@ def test_underground_storage_all_operators_series_resolution(
 ):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_all_operators(
+    out = ng.storage.underground_all_operators(
         start="2020-01-01",
         geography=geography,
         metric_type=metric_type,
@@ -548,7 +550,7 @@ def test_underground_storage_all_operators_invalid_metric_type_raises_valueerror
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_all_operators(
+        ng.storage.underground_all_operators(
             start="2020-01-01",
             metric_type="bad_metric",
         )
@@ -565,7 +567,7 @@ def test_underground_storage_all_operators_invalid_frequency_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_all_operators(
+        ng.storage.underground_all_operators(
             start="2020-01-01",
             frequency="weekly",
         )
@@ -582,7 +584,7 @@ def test_underground_storage_all_operators_invalid_geography_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_all_operators(
+        ng.storage.underground_all_operators(
             start="2020-01-01",
             geography="bad_geo",
             metric_type="working_gas",
@@ -603,10 +605,10 @@ def test_underground_storage_working_gas_wrapper_delegates(monkeypatch, ng):
         return [{"value": 1.0}]
 
     monkeypatch.setattr(
-        ng, "underground_storage_all_operators", _delegate, raising=False
+        ng.storage, "underground_all_operators", _delegate, raising=False
     )
 
-    out = ng.underground_storage_working_gas(
+    out = ng.storage.underground_working_gas(
         start="2020-01-01",
         end="2020-12-31",
         geography="tx",
@@ -637,10 +639,10 @@ def test_underground_storage_working_gas_yoy_pct_change_wrapper_delegates(
         return [{"value": 2.0}]
 
     monkeypatch.setattr(
-        ng, "underground_storage_all_operators", _delegate, raising=False
+        ng.storage, "underground_all_operators", _delegate, raising=False
     )
 
-    out = ng.underground_storage_working_gas_yoy_pct_change(
+    out = ng.storage.underground_working_gas_yoy_pct_change(
         start="2021-01-01",
         geography="pa",
     )
@@ -660,7 +662,7 @@ def test_underground_storage_working_gas_yoy_pct_change_wrapper_delegates(
 def test_underground_storage_type_defaults(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_type(start="2020-01-01")
+    out = ng.storage.underground_type(start="2020-01-01")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "stor/type/data/"
@@ -674,7 +676,7 @@ def test_underground_storage_type_defaults(monkeypatch, ng):
 def test_underground_storage_type_annual_salt_withdrawals(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_type(
+    out = ng.storage.underground_type(
         start="2019-01-01",
         end="2024-12-31",
         storage_type="salt_withdrawals",
@@ -711,7 +713,7 @@ def test_underground_storage_type_series_resolution(
 ):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_type(
+    out = ng.storage.underground_type(
         start="2020-01-01",
         storage_type=storage_type,
     )
@@ -728,7 +730,7 @@ def test_underground_storage_type_invalid_storage_type_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_type(
+        ng.storage.underground_type(
             start="2020-01-01",
             storage_type="bad_type",
         )
@@ -745,7 +747,7 @@ def test_underground_storage_type_invalid_frequency_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_type(
+        ng.storage.underground_type(
             start="2020-01-01",
             frequency="weekly",
         )
@@ -759,7 +761,7 @@ def test_underground_storage_type_invalid_frequency_raises_valueerror(
 def test_underground_storage_capacity_defaults(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_capacity(start="2020-01-01")
+    out = ng.storage.underground_capacity(start="2020-01-01")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "stor/sum/data/"
@@ -784,7 +786,7 @@ def test_underground_storage_capacity_series_resolution(
 ):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_capacity(
+    out = ng.storage.underground_capacity(
         start="2020-01-01",
         geography=geography,
         type=capacity_type,
@@ -800,7 +802,7 @@ def test_underground_storage_capacity_invalid_type_raises_valueerror(monkeypatch
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_capacity(
+        ng.storage.underground_capacity(
             start="2020-01-01",
             type="bad_type",
         )
@@ -817,7 +819,7 @@ def test_underground_storage_capacity_invalid_geography_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_capacity(
+        ng.storage.underground_capacity(
             start="2020-01-01",
             geography="bad_geo",
             type="working_gas",
@@ -836,7 +838,7 @@ def test_underground_storage_capacity_invalid_frequency_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_capacity(
+        ng.storage.underground_capacity(
             start="2020-01-01",
             frequency="weekly",
         )
@@ -850,7 +852,7 @@ def test_underground_storage_capacity_invalid_frequency_raises_valueerror(
 def test_underground_storage_count_defaults(monkeypatch, ng):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_count(start="2020-01-01")
+    out = ng.storage.underground_count(start="2020-01-01")
     assert out == expected
 
     assert calls["fetch"]["endpoint"] == "stor/sum/data/"
@@ -874,7 +876,7 @@ def test_underground_storage_count_series_resolution(
 ):
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.underground_storage_count(
+    out = ng.storage.underground_count(
         start="2020-01-01",
         geography=geography,
     )
@@ -891,7 +893,7 @@ def test_underground_storage_count_invalid_geography_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_count(
+        ng.storage.underground_count(
             start="2020-01-01",
             geography="bad_geo",
         )
@@ -908,7 +910,7 @@ def test_underground_storage_count_invalid_frequency_raises_valueerror(
     _install_spies(monkeypatch, ng)
 
     with pytest.raises(ValueError) as e:
-        ng.underground_storage_count(
+        ng.storage.underground_count(
             start="2020-01-01",
             frequency="weekly",
         )
