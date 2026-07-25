@@ -1,4 +1,12 @@
-from ...datasets.natural_gas_series import (
+from typing import Literal, Optional
+
+from ...datasets.consumption_series import (
+    CONSUMPTION_COMMERCIAL_ACCOUNT_OF_OTHERS_DELIVERED,
+    CONSUMPTION_COMMERCIAL_ACCOUNT_OF_OTHERS_PERCENT,
+    CONSUMPTION_COMMERCIAL_AVERAGE_ANNUAL_CONSUMPTION,
+    CONSUMPTION_COMMERCIAL_CONSUMERS_COUNT,
+    CONSUMPTION_COMMERCIAL_CONSUMERS_SALES_COUNT,
+    CONSUMPTION_COMMERCIAL_CONSUMERS_TRANSPORTED,
     CONSUMPTION_DELIVERED_COMMERCIAL_PERCENTAGE,
     CONSUMPTION_DELIVERED_ELECTRIC_PERCENTAGE,
     CONSUMPTION_DELIVERED_INDUSTRIAL_PERCENTAGE,
@@ -11,6 +19,17 @@ from ...datasets.natural_gas_series import (
     CONSUMPTION_END_USE_INDUSTRIAL,
     CONSUMPTION_END_USE_RESIDENTIAL,
     CONSUMPTION_HEAT_CONTENT,
+    CONSUMPTION_INDUSTRIAL_ACCOUNT_OF_OTHERS_DELIVERED,
+    CONSUMPTION_INDUSTRIAL_ACCOUNT_OF_OTHERS_PERCENT,
+    CONSUMPTION_INDUSTRIAL_AVERAGE_ANNUAL_CONSUMPTION,
+    CONSUMPTION_INDUSTRIAL_CONSUMERS_COUNT,
+    CONSUMPTION_INDUSTRIAL_CONSUMERS_SALES_COUNT,
+    CONSUMPTION_INDUSTRIAL_CONSUMERS_TRANSPORTED_COUNT,
+    CONSUMPTION_RESIDENTIAL_ACCOUNT_OF_OTHERS_DELIVERED,
+    CONSUMPTION_RESIDENTIAL_ACCOUNT_OF_OTHERS_PERCENT,
+    CONSUMPTION_RESIDENTIAL_CONSUMERS_COUNT,
+    CONSUMPTION_RESIDENTIAL_CONSUMERS_SALES_COUNT,
+    CONSUMPTION_RESIDENTIAL_CONSUMERS_TRANSPORTED_COUNT,
     CONSUMPTION_SHARE_COMMERCIAL_END_USE,
     CONSUMPTION_SHARE_ELECTRIC_END_USE,
     CONSUMPTION_SHARE_INDUSTRIAL_END_USE,
@@ -196,3 +215,157 @@ class NaturalGasConsumption(BaseSource):
         )
         return self.get_series(payload)
 
+    ConsumerSector = Literal[
+        "residential",
+        "commercial",
+        "industrial",
+    ]
+
+    ConsumerCategory = Literal[
+        "total",
+        "sales",
+        "transported",
+    ]
+
+    def number_of_consumers(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        state: str = "us_total",
+        frequency: str = "annual",
+        sector: ConsumerSector = "residential",
+        category: ConsumerCategory = "total",
+        offset: int = 0,
+        length: int = 5000,
+    ):
+        endpoint = "cons/num/data/"
+        series_maps = {
+            "residential": {
+                "total": CONSUMPTION_RESIDENTIAL_CONSUMERS_COUNT,
+                "sales": CONSUMPTION_RESIDENTIAL_CONSUMERS_SALES_COUNT,
+                "transported": CONSUMPTION_RESIDENTIAL_CONSUMERS_TRANSPORTED_COUNT,
+            },
+            "commercial": {
+                "total": CONSUMPTION_COMMERCIAL_CONSUMERS_COUNT,
+                "sales": CONSUMPTION_COMMERCIAL_CONSUMERS_SALES_COUNT,
+                "transported": CONSUMPTION_COMMERCIAL_CONSUMERS_TRANSPORTED,
+            },
+            "industrial": {
+                "total": CONSUMPTION_INDUSTRIAL_CONSUMERS_COUNT,
+                "sales": CONSUMPTION_INDUSTRIAL_CONSUMERS_SALES_COUNT,
+                "transported": CONSUMPTION_INDUSTRIAL_CONSUMERS_TRANSPORTED_COUNT,
+            },
+        }
+
+        if frequency != "annual":
+            raise ValueError(
+                f"Invalid frequency={frequency!r}. "
+                "Number of consumers only supports annual frequency."
+            )
+
+        if sector not in series_maps:
+            valid_sectors = ", ".join(sorted(series_maps))
+            raise ValueError(
+                f"Invalid sector={sector!r}. Valid sectors: {valid_sectors}."
+            )
+
+        sector_series = series_maps[sector]
+
+        if category not in sector_series:
+            valid_categories = ", ".join(sorted(sector_series))
+            raise ValueError(
+                f"Invalid category={category!r}. Valid categories: {valid_categories}."
+            )
+
+        state_series = sector_series[category]
+
+        try:
+            series = state_series[state]
+        except KeyError as exc:
+            valid_states = ", ".join(sorted(state_series))
+            raise ValueError(
+                f"Invalid state={state!r} for sector={sector!r} "
+                f"and category={category!r}. Valid states: {valid_states}."
+            ) from exc
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+
+        return self.get_series(payload)
+
+    def delivered_for_the_account_of_others(
+        self,
+        start: str,
+        end: Optional[str] = None,
+        type: str = "residential",
+        measure: str = "delivered",
+        state: str = "us_total",
+        frequency: str = "annual",
+        offset: int = 0,
+        length: int = 5000,
+    ):
+        endpoint = "cons/acct/data/"
+
+        series_maps = {
+            "delivered": {
+                "residential": (CONSUMPTION_RESIDENTIAL_ACCOUNT_OF_OTHERS_DELIVERED),
+                "commercial": (CONSUMPTION_COMMERCIAL_ACCOUNT_OF_OTHERS_DELIVERED),
+                "industrial": (CONSUMPTION_INDUSTRIAL_ACCOUNT_OF_OTHERS_DELIVERED),
+            },
+            "percent": {
+                "residential": (CONSUMPTION_RESIDENTIAL_ACCOUNT_OF_OTHERS_PERCENT),
+                "commercial": (CONSUMPTION_COMMERCIAL_ACCOUNT_OF_OTHERS_PERCENT),
+                "industrial": (CONSUMPTION_INDUSTRIAL_ACCOUNT_OF_OTHERS_PERCENT),
+            },
+        }
+
+        if frequency != "annual":
+            raise ValueError(
+                f"Invalid frequency={frequency!r}. "
+                "Consumption delivered for the account of others "
+                "only supports annual frequency."
+            )
+
+        if measure not in series_maps:
+            valid_measures = ", ".join(sorted(series_maps))
+            raise ValueError(
+                f"Invalid measure={measure!r}. Valid measures: {valid_measures}."
+            )
+
+        measure_series = series_maps[measure]
+
+        if type not in measure_series:
+            valid_types = ", ".join(sorted(measure_series))
+            raise ValueError(f"Invalid type={type!r}. Valid types: {valid_types}.")
+
+        state_series = measure_series[type]
+
+        try:
+            series = state_series[state]
+        except KeyError as exc:
+            valid_states = ", ".join(sorted(state_series))
+            raise ValueError(
+                f"Invalid state={state!r} for type={type!r} "
+                f"and measure={measure!r}. Valid states: {valid_states}."
+            ) from exc
+
+        payload = self._fetch_v2(
+            start=start,
+            end=end,
+            endpoint=endpoint,
+            series=series,
+            frequency=frequency,
+            data_fields=["value"],
+            offset=offset,
+            length=length,
+        )
+
+        return self.get_series(payload)

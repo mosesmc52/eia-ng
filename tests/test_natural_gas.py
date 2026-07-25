@@ -127,16 +127,16 @@ def test_production_state_tx(monkeypatch, ng):
     assert calls["fetch"]["data_fields"] == ["value"]
 
 
-def test_consumption_default_united_states_total(monkeypatch, ng):
+def test_consumption_end_use_default_united_states_total(monkeypatch, ng):
 
     calls, expected = _install_spies(monkeypatch, ng)
 
-    out = ng.consumption(start="2020-01", state="united_states_total")
+    out = ng.consumption.end_use(start="2020")
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "sum/snd/data/"
-    assert calls["fetch"]["series"] == "N9140US2"
-    assert calls["fetch"]["frequency"] == "monthly"
+    assert calls["fetch"]["endpoint"] == "cons/sum/data/"
+    assert calls["fetch"]["series"] == "N3010US2"
+    assert calls["fetch"]["frequency"] == "annual"
     assert calls["fetch"]["data_fields"] == ["value"]
 
 
@@ -219,7 +219,7 @@ def test_consumption_delivered_to_consumers_invalid_state_raises_valueerror(
     assert "Invalid state='bad_state'" in msg
     assert "type='residential'" in msg
     assert "tx" in msg
-    assert "united_states_total" in msg
+    assert "us_total" in msg
 
 
 def test_consumption_end_use_selects_type_and_state(monkeypatch, ng):
@@ -764,7 +764,7 @@ def test_underground_storage_capacity_defaults(monkeypatch, ng):
     out = ng.storage.underground_capacity(start="2020-01-01")
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["endpoint"] == "stor/cap/data/"
     assert calls["fetch"]["series"] == "N5290US2"
     assert calls["fetch"]["frequency"] == "monthly"
     assert calls["fetch"]["data_fields"] == ["value"]
@@ -793,7 +793,7 @@ def test_underground_storage_capacity_series_resolution(
     )
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["endpoint"] == "stor/cap/data/"
     assert calls["fetch"]["series"] == expected_series
     assert calls["fetch"]["frequency"] == "monthly"
 
@@ -855,7 +855,7 @@ def test_underground_storage_count_defaults(monkeypatch, ng):
     out = ng.storage.underground_count(start="2020-01-01")
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["endpoint"] == "stor/cap/data/"
     assert calls["fetch"]["series"] == "NA1394_NUS_8"
     assert calls["fetch"]["frequency"] == "monthly"
     assert calls["fetch"]["data_fields"] == ["value"]
@@ -882,7 +882,7 @@ def test_underground_storage_count_series_resolution(
     )
     assert out == expected
 
-    assert calls["fetch"]["endpoint"] == "stor/sum/data/"
+    assert calls["fetch"]["endpoint"] == "stor/cap/data/"
     assert calls["fetch"]["series"] == expected_series
     assert calls["fetch"]["frequency"] == "monthly"
 

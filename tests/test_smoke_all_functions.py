@@ -61,7 +61,7 @@ def test_smoke_all_functions():
 
     # Storage (weekly) - lower48 default
     try:
-        storage = client.natural_gas.storage(
+        storage = client.natural_gas.storage.weekly_working(
             start="2023-01-01", region="lower48", length=5
         )
         _assert_rows(storage)
@@ -89,10 +89,10 @@ def test_smoke_all_functions():
 
     # Consumption (monthly) - U.S. total
     try:
-        cons_us = client.natural_gas.consumption(
-            start="2022-01",
-            state="united_states_total",
-            frequency="monthly",
+        cons_us = client.natural_gas.consumption.end_use(
+            start="2022",
+            state="us_total",
+            frequency="annual",
             length=5,
         )
         _assert_rows(cons_us)

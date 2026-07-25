@@ -214,6 +214,53 @@ commercial_share = client.natural_gas.consumption.share_delivered_to_consumers(
 )
 ```
 
+#### Consumer counts
+
+`number_of_consumers` is annual and supports the `residential`, `commercial`,
+and `industrial` sectors. Use `total`, `sales`, or `transported` for `category`.
+
+```python
+# Texas commercial customers served through sales
+commercial_sales_customers = client.natural_gas.consumption.number_of_consumers(
+    start="2020",
+    state="tx",
+    sector="commercial",
+    category="sales",
+)
+
+# U.S. industrial customers receiving transported gas
+industrial_transport_customers = client.natural_gas.consumption.number_of_consumers(
+    start="2020",
+    state="us_total",
+    sector="industrial",
+    category="transported",
+)
+```
+
+#### Deliveries for the account of others
+
+```python
+# Texas industrial deliveries for the account of others
+industrial_account_deliveries = (
+    client.natural_gas.consumption.delivered_for_the_account_of_others(
+        start="2020",
+        state="tx",
+        type="industrial",
+        measure="delivered",
+    )
+)
+
+# U.S. residential share delivered for the account of others
+residential_account_share = (
+    client.natural_gas.consumption.delivered_for_the_account_of_others(
+        start="2020",
+        state="us_total",
+        type="residential",
+        measure="percent",
+    )
+)
+```
+
 
 #### Imports / exports
 

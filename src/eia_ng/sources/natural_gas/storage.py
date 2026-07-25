@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from ...datasets.natural_gas_series import (
+from ...datasets.storage_series import (
     BASE_GAS_STORAGE_SERIES_BY_GEOGRAPHY,
     LNG_STORAGE_ADDITIONS,
     LNG_STORAGE_NET_WITHDRAWLS,
@@ -486,4 +486,3 @@ class NaturalGasStorage(BaseSource):
             length=length,
         )
         return self.get_series(payload)
-
