@@ -188,13 +188,6 @@ lng_net_withdrawals = client.natural_gas.storage.lng_net_withdrawls(
 #### Consumption
 
 ```python
-# Texas annual residential deliveries to consumers
-residential_deliveries = client.natural_gas.consumption.delivered_to_consumers(
-    start="2020",
-    state="tx",
-    type="residential",
-)
-
 # Texas annual industrial end-use consumption
 industrial_consumption = client.natural_gas.consumption.end_use(
     start="2020",
