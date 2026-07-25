@@ -1,19 +1,10 @@
 from typing import Any, Optional
 
-from ..datasets.natural_gas_series import (
+from ...datasets.storage_series import (
     BASE_GAS_STORAGE_SERIES_BY_GEOGRAPHY,
-    CONSUMPTION_SERIES_BY_STATE,
-    EXPORT_SERIES_BY_COUNTRY,
-    FUTURES_SERIES_BY_CONTRACT,
-    IMPORT_SERIES_BY_COUNTRY,
     LNG_STORAGE_ADDITIONS,
     LNG_STORAGE_NET_WITHDRAWLS,
     LNG_STORAGE_WITHDRAWLS,
-    NG_EFP_DRY_BY_STATE,
-    NG_PROVED_WET_ASSOC_BY_STATE,
-    NG_PROVED_WET_NONASSOC_BY_STATE,
-    NGL_PROVED_BY_STATE,
-    PRODUCTION_SERIES_BY_STATE,
     UNDERGROUND_STORAGE_CAPACITY,
     UNDERGROUND_STORAGE_COUNT,
     UNDERGROUND_STORAGE_INJECTIONS_SERIES_BY_GEOGRAPHY,
@@ -27,32 +18,16 @@ from ..datasets.natural_gas_series import (
     UNDERGROUND_STORAGE_WORKING_GAS_YOY_VOLUME_SERIES_BY_GEOGRAPHY,
     WEEKLY_WORKING_STORAGE_SERIES_BY_REGION,
 )
-from .base import BaseSource
+from ..base import BaseSource
 
 
-class NaturalGas(BaseSource):
+class NaturalGasStorage(BaseSource):
+    """Underground and LNG storage data queries."""
+
     def __init__(self, client):
         super().__init__(client, base_endpoint="natural-gas/")
 
-    def storage(
-        self,
-        start: str,
-        end: Optional[str] = None,
-        region: str = "lower48",
-        frequency: str = "weekly",
-        offset: int = 0,
-        length: int = 5000,
-    ) -> Any:
-        return self.weekly_working_storage(
-            start=start,
-            end=end,
-            region=region,
-            frequency=frequency,
-            offset=offset,
-            length=length,
-        )
-
-    def weekly_working_storage(
+    def weekly_working(
         self,
         start: str,
         end: str = None,
@@ -83,7 +58,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def underground_storage_all_operators(
+    def underground_all_operators(
         self,
         start: str,
         end: Optional[str] = None,
@@ -141,7 +116,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def underground_storage_base_gas(
+    def underground_base_gas(
         self,
         start: str,
         end: Optional[str] = None,
@@ -150,7 +125,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -160,7 +135,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_working_gas(
+    def underground_working_gas(
         self,
         start: str,
         end: Optional[str] = None,
@@ -169,7 +144,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -179,7 +154,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_total_gas(
+    def underground_total_gas(
         self,
         start: str,
         end: Optional[str] = None,
@@ -188,7 +163,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -198,7 +173,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_working_gas_yoy_volume_change(
+    def underground_working_gas_yoy_volume_change(
         self,
         start: str,
         end: Optional[str] = None,
@@ -207,7 +182,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -217,7 +192,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_working_gas_yoy_pct_change(
+    def underground_working_gas_yoy_pct_change(
         self,
         start: str,
         end: Optional[str] = None,
@@ -226,7 +201,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -236,7 +211,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_injections(
+    def underground_injections(
         self,
         start: str,
         end: Optional[str] = None,
@@ -245,7 +220,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -255,7 +230,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_withdrawals(
+    def underground_withdrawals(
         self,
         start: str,
         end: Optional[str] = None,
@@ -264,7 +239,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -274,7 +249,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_net_withdrawals(
+    def underground_net_withdrawals(
         self,
         start: str,
         end: Optional[str] = None,
@@ -283,7 +258,7 @@ class NaturalGas(BaseSource):
         offset: int = 0,
         length: int = 5000,
     ) -> Any:
-        return self.underground_storage_all_operators(
+        return self.underground_all_operators(
             start=start,
             end=end,
             geography=geography,
@@ -293,7 +268,7 @@ class NaturalGas(BaseSource):
             length=length,
         )
 
-    def underground_storage_type(
+    def underground_type(
         self,
         start: str,
         end: Optional[str] = None,
@@ -329,76 +304,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def spot_prices(
-        self,
-        start: str,
-        end: str = None,
-        frequency: str = "daily",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "pri/fut/data/"
-        series = "RNGWHHD"
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            frequency=frequency,
-            data_fields=["value"],
-        )
-        return self.get_series(payload)
-
-    def production(
-        self,
-        start: str,
-        end: str = None,
-        state: str = "united_states_total",
-        frequency: str = "monthly",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "sum/snd/data/"
-
-        series = PRODUCTION_SERIES_BY_STATE[state]
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            frequency=frequency,
-            data_fields=["value"],
-            offset=offset,
-            length=length,
-        )
-        return self.get_series(payload)
-
-    def consumption(
-        self,
-        start: str,
-        end: str = None,
-        state: str = "united_states_total",
-        frequency: str = "monthly",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "sum/snd/data/"
-        series = CONSUMPTION_SERIES_BY_STATE[state]
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            frequency=frequency,
-            data_fields=["value"],
-            offset=offset,
-            length=length,
-        )
-        return self.get_series(payload)
-
-    def lng_storage_additions(
+    def lng_additions(
         self,
         start: str,
         end: Optional[str] = None,
@@ -432,7 +338,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def lng_storage_withdrawls(
+    def lng_withdrawls(
         self,
         start: str,
         end: Optional[str] = None,
@@ -466,7 +372,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def lng_storage_net_withdrawls(
+    def lng_net_withdrawls(
         self,
         start: str,
         end: Optional[str] = None,
@@ -500,7 +406,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def underground_storage_capacity(
+    def underground_capacity(
         self,
         start: str,
         end: Optional[str] = None,
@@ -547,7 +453,7 @@ class NaturalGas(BaseSource):
         )
         return self.get_series(payload)
 
-    def underground_storage_count(
+    def underground_count(
         self,
         start: str,
         end: Optional[str] = None,
@@ -576,145 +482,6 @@ class NaturalGas(BaseSource):
             series=series,
             frequency=frequency,
             data_fields=["value"],
-            offset=offset,
-            length=length,
-        )
-        return self.get_series(payload)
-
-    def imports(
-        self,
-        start: str,
-        end: str = None,
-        frequency: str = "monthly",
-        country: str = "united_states_pipeline_total",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "move/impc/data/"
-        try:
-            series = IMPORT_SERIES_BY_COUNTRY[country]
-        except KeyError:
-            raise ValueError(f"Unsupported export destination: {country}")
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            frequency=frequency,
-            data_fields=["value"],
-            offset=offset,
-            length=length,
-        )
-        return self.get_series(payload)
-
-    def exports(
-        self,
-        start: str,
-        end: str = None,
-        frequency: str = "monthly",
-        country: str = "united_states_pipeline_total",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "move/expc/data/"
-        try:
-            series = EXPORT_SERIES_BY_COUNTRY[country]
-        except KeyError:
-            raise ValueError(f"Unsupported export destination: {country}")
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            frequency=frequency,
-            data_fields=["value"],
-            offset=offset,
-            length=length,
-        )
-        return self.get_series(payload)
-
-    def futures_prices(
-        self,
-        start: str = None,
-        end: str = None,
-        contract: int = 1,
-        frequency: str = "daily",
-        offset: int = 0,
-        length: int = 5000,
-    ):
-        endpoint = "pri/fut/data/"
-        try:
-            series = FUTURES_SERIES_BY_CONTRACT[contract]
-        except KeyError:
-            raise ValueError(f"Unsupported futures contract: {contract}")
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            data_fields=["value"],
-            frequency=frequency,
-        )
-        return self.get_series(payload)
-
-    def exploration_and_reserves(
-        self,
-        start: str = None,
-        end: str = None,
-        frequency: str = "annual",  # locked default
-        offset: int = 0,
-        length: int = 5000,
-        state: str = "all",
-        resource_category: str = "proved_associated_gas",
-    ):
-        """
-        Fetch EIA Exploration & Reserves (ENR) data.
-        NOTE: ENR data is annual only.
-        """
-
-        if frequency != "annual":
-            raise ValueError(
-                f"Invalid frequency='{frequency}'. "
-                "Exploration & Reserves data is annual only."
-            )
-
-        endpoint = "enr/sum/data/"
-
-        st = (state or "all").strip().lower()
-
-        category_map = {
-            "proved_associated_gas": NG_PROVED_WET_ASSOC_BY_STATE,
-            "proved_nonassociated_gas": NG_PROVED_WET_NONASSOC_BY_STATE,
-            "proved_ngl": NGL_PROVED_BY_STATE,
-            "expected_future_gas_production": NG_EFP_DRY_BY_STATE,
-        }
-
-        if resource_category not in category_map:
-            raise ValueError(
-                f"Unsupported resource category: {resource_category}. "
-                f"Valid: {sorted(category_map.keys())}"
-            )
-
-        series_map = category_map[resource_category]
-
-        try:
-            series = series_map[st]
-        except KeyError as e:
-            raise KeyError(
-                f"Unknown state '{state}' (normalized '{st}'). "
-                "Expected 2-letter state code or 'us'/'all'."
-            ) from e
-
-        payload = self._fetch_v2(
-            start=start,
-            end=end,
-            endpoint=endpoint,
-            series=series,
-            data_fields=["value"],
-            frequency="annual",
             offset=offset,
             length=length,
         )

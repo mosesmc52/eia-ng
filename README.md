@@ -40,7 +40,7 @@ production = client.natural_gas.production(start="2020-01")
 print(production[:3])
 
 # Lower 48 natural gas storage (weekly)
-weekly_storage = client.natural_gas.weekly_working_storage(start="2022-01-01")
+weekly_storage = client.natural_gas.storage.weekly_working(start="2022-01-01")
 print(weekly_storage[:3])
 
 # Henry Hub spot prices (daily)
@@ -52,7 +52,12 @@ print(prices[:3])
 
 ### Natural Gas Data
 
-The `natural_gas` source provides access to:
+The `natural_gas` source groups storage and consumption queries into namespaces:
+
+- `client.natural_gas.storage`
+- `client.natural_gas.consumption`
+
+It provides access to:
 
 - Production (U.S. total and by state)
 - Consumption (U.S. total and by state)
@@ -78,7 +83,7 @@ tx_prod = client.natural_gas.production(
 
 ```python
 # Lower 48 weekly working gas storage
-weekly_storage = client.natural_gas.weekly_working_storage(
+weekly_storage = client.natural_gas.storage.weekly_working(
     start="2022-01-01",
     region="lower48",
 )
@@ -88,7 +93,7 @@ weekly_storage = client.natural_gas.weekly_working_storage(
 
 ```python
 # Texas monthly working gas in underground storage
-texas_working_gas = client.natural_gas.underground_storage_all_operators(
+texas_working_gas = client.natural_gas.storage.underground_all_operators(
     start="2020-01",
     geography="tx",
     metric_type="working_gas",
@@ -96,7 +101,7 @@ texas_working_gas = client.natural_gas.underground_storage_all_operators(
 )
 
 # U.S. working gas percent change from year ago
-us_yoy_pct = client.natural_gas.underground_storage_all_operators(
+us_yoy_pct = client.natural_gas.storage.underground_all_operators(
     start="2020-01",
     geography="us_total",
     metric_type="working_gas_yoy_pct_change",
@@ -104,7 +109,7 @@ us_yoy_pct = client.natural_gas.underground_storage_all_operators(
 )
 
 # Thin wrapper example
-base_gas = client.natural_gas.underground_storage_base_gas(
+base_gas = client.natural_gas.storage.underground_base_gas(
     start="2020-01",
     geography="pa",
 )
@@ -114,14 +119,14 @@ base_gas = client.natural_gas.underground_storage_base_gas(
 
 ```python
 # U.S. monthly working gas by storage type dataset
-storage_type_working_gas = client.natural_gas.underground_storage_type(
+storage_type_working_gas = client.natural_gas.storage.underground_type(
     start="2020-01",
     storage_type="working_gas",
     frequency="monthly",
 )
 
 # U.S. annual salt cavern withdrawals
-salt_withdrawals = client.natural_gas.underground_storage_type(
+salt_withdrawals = client.natural_gas.storage.underground_type(
     start="2015",
     storage_type="salt_withdrawals",
     frequency="annual",
@@ -132,7 +137,7 @@ salt_withdrawals = client.natural_gas.underground_storage_type(
 
 ```python
 # U.S. monthly total underground storage capacity
-total_capacity = client.natural_gas.underground_storage_capacity(
+total_capacity = client.natural_gas.storage.underground_capacity(
     start="2020-01",
     geography="us_total",
     type="total",
@@ -140,7 +145,7 @@ total_capacity = client.natural_gas.underground_storage_capacity(
 )
 
 # Texas annual working gas storage capacity
-tx_working_capacity = client.natural_gas.underground_storage_capacity(
+tx_working_capacity = client.natural_gas.storage.underground_capacity(
     start="2015",
     geography="tx",
     type="working_gas",
@@ -148,7 +153,7 @@ tx_working_capacity = client.natural_gas.underground_storage_capacity(
 )
 
 # Lower 48 monthly storage field count
-lower48_storage_count = client.natural_gas.underground_storage_count(
+lower48_storage_count = client.natural_gas.storage.underground_count(
     start="2020-01",
     geography="lower48",
     frequency="monthly",
@@ -159,24 +164,93 @@ lower48_storage_count = client.natural_gas.underground_storage_count(
 
 ```python
 # U.S. LNG storage additions
-lng_additions = client.natural_gas.lng_storage_additions(
+lng_additions = client.natural_gas.storage.lng_additions(
     start="2020-01",
     geography="us_total",
     frequency="annual",
 )
 
 # Texas LNG storage withdrawals
-tx_lng_withdrawals = client.natural_gas.lng_storage_withdrawls(
+tx_lng_withdrawals = client.natural_gas.storage.lng_withdrawls(
     start="2020-01",
     geography="tx",
     frequency="annual",
 )
 
 # U.S. LNG storage net withdrawals
-lng_net_withdrawals = client.natural_gas.lng_storage_net_withdrawls(
+lng_net_withdrawals = client.natural_gas.storage.lng_net_withdrawls(
     start="2020-01",
     geography="us_total",
     frequency="annual",
+)
+```
+
+#### Consumption
+
+```python
+# Texas annual industrial end-use consumption
+industrial_consumption = client.natural_gas.consumption.end_use(
+    start="2020",
+    state="tx",
+    type="industrial",
+)
+
+# Texas annual heat content and commercial share of deliveries
+heat_content = client.natural_gas.consumption.heat_content(
+    start="2020",
+    state="tx",
+)
+commercial_share = client.natural_gas.consumption.share_delivered_to_consumers(
+    start="2020",
+    state="tx",
+    type="commercial",
+)
+```
+
+#### Consumer counts
+
+`number_of_consumers` is annual and supports the `residential`, `commercial`,
+and `industrial` sectors. Use `total`, `sales`, or `transported` for `category`.
+
+```python
+# Texas commercial customers served through sales
+commercial_sales_customers = client.natural_gas.consumption.number_of_consumers(
+    start="2020",
+    state="tx",
+    sector="commercial",
+    category="sales",
+)
+
+# U.S. industrial customers receiving transported gas
+industrial_transport_customers = client.natural_gas.consumption.number_of_consumers(
+    start="2020",
+    state="us_total",
+    sector="industrial",
+    category="transported",
+)
+```
+
+#### Deliveries for the account of others
+
+```python
+# Texas industrial deliveries for the account of others
+industrial_account_deliveries = (
+    client.natural_gas.consumption.delivered_for_the_account_of_others(
+        start="2020",
+        state="tx",
+        type="industrial",
+        measure="delivered",
+    )
+)
+
+# U.S. residential share delivered for the account of others
+residential_account_share = (
+    client.natural_gas.consumption.delivered_for_the_account_of_others(
+        start="2020",
+        state="us_total",
+        type="residential",
+        measure="percent",
+    )
 )
 ```
 
